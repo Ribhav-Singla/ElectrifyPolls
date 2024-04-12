@@ -1,0 +1,29 @@
+body {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+p{
+  margin-bottom: 0.5rem !important;
+}
+
+.navbar{
+  background-color: white;
+}
+
+.join--Room {
+  width: 420px;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+}
+
+.poll--option {
+  border-radius: 5px;
+  background-color: white;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+}
+
