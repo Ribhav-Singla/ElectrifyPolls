@@ -15,7 +15,7 @@ export default function Poll() {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:8080");
+    socketRef.current = io(`${import.meta.env.VITE_BACKEND_URL}`)
     // Join the room
     socketRef.current.emit("joinRoom", { roomId });
     // Listen for updates to the room state

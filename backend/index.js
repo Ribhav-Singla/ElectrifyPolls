@@ -3,9 +3,11 @@ const { createServer } = require("http");
 const { v4: uuidv4 } = require("uuid");
 const { Server } = require("socket.io");
 const cors = require("cors");
+require('dotenv').config()
 
 const app = express();
 const server = createServer(app);
+const PORT = process.env.PORT
 
 // Use cors middleware
 app.use(cors());
@@ -88,6 +90,6 @@ app.post("/api/joinRoom", (req, res) => {
   }
 });
 
-server.listen(8080, () => {
-  console.log(`server listening on http://localhost:8080`);
+server.listen(PORT, () => {
+  console.log(`server listening on http://localhost:${PORT}`);
 });

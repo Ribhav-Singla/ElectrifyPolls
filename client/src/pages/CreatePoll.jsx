@@ -66,10 +66,10 @@ export default function CreatePoll() {
     };
 
     try {
-      await axios.post("/api/createpoll", pollData).then((res) => {
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/createpoll`, pollData).then((res) => {
         if (res.data.message === "success") {
           const roomId = res.data.roomId;
-          const socket = io("http://localhost:8080");
+          const socket = io(`${import.meta.env.VITE_BACKEND_URL}`);
           // Connect to the Socket.IO server
           socket.on("connect", () => {
             // Emit 'joinRoom' event with roomId and pollData

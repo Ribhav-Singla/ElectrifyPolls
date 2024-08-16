@@ -14,7 +14,7 @@ export default function JoinRoom() {
     }
     else{
       try {
-        await axios.post('/api/joinRoom',{roomId})
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/joinRoom`,{roomId})
           .then((res)=>{
             if(res.data === 'error'){
               toast.error('Invalid room ID')
