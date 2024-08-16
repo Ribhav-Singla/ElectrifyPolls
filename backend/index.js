@@ -10,7 +10,17 @@ const server = createServer(app);
 const PORT = process.env.PORT
 
 // Use cors middleware
-app.use(cors());
+const corsOptions = {
+  origin: process.env.FRONTEND_URL, // Allow requests only from your frontend URL
+  methods: ["GET", "POST"], // Specify the HTTP methods allowed
+  allowedHeaders: ["Content-Type", "Authorization"], // Specify the headers allowed
+  credentials: true, // If you need to send cookies or authentication headers
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests (OPTIONS method)
+app.options("*", cors(corsOptions));
 
 // Parse incoming requests with JSON payloads
 app.use(express.json());
