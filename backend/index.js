@@ -10,17 +10,18 @@ const server = createServer(app);
 const PORT = process.env.PORT
 
 // Use cors middleware
-const corsOptions = {
-  origin: process.env.FRONTEND_URL, // Allow requests only from your frontend URL
-  methods: ["GET", "POST"], // Specify the HTTP methods allowed
-  allowedHeaders: ["Content-Type", "Authorization"], // Specify the headers allowed
-  credentials: true, // If you need to send cookies or authentication headers
-};
+// Add headers before the routes are defined
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specific HTTP methods
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow specific headers
 
-app.use(cors(corsOptions));
+  if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+  }
 
-// Handle preflight requests (OPTIONS method)
-app.options("*", cors(corsOptions));
+  next();
+});
 
 // Parse incoming requests with JSON payloads
 app.use(express.json());
