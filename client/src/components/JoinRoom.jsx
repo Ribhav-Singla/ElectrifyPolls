@@ -1,41 +1,51 @@
-import React, { useState } from 'react';
-import {toast} from 'react-toastify';
-import axios from 'axios';
-import {useNavigate} from 'react-router-dom';
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function JoinRoom() {
   const navigate = useNavigate();
-  const [roomId, setRoomId] = useState('');
-  const [username, setUsername] = useState('');
+  const [roomId, setRoomId] = useState("");
+  const [username, setUsername] = useState("");
 
-  const handleJoin = async()=>{
-    if(roomId == '' || username ==''){
+  const handleJoin = async () => {
+    if (roomId == "" || username == "") {
       toast.error("Please fill in all option fields.");
-    }
-    else{
+    } else {
       try {
-
         // Fetch the public IP address using Cloudflare's IP detection service
-        const response = await axios.get("https://www.cloudflare.com/cdn-cgi/trace");
-        
-        // Extract the IP address from the response data
-        const ipAddress = response.data.match(/ip=(.*)/)[1];
+        const response = await axios.get(
+          "https://www.cloudflare.com/cdn-cgi/trace"
+        );
 
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/joinRoom`,{roomId:roomId,ipAddress:ipAddress})
-          .then((res)=>{
-            if(res.data === 'error'){
-              toast.error('Invalid room ID')
-            }
-            else{
-              toast.success('joined Room')
+        const ipMatch = response.data.match(/ip=(.*)/);
+        let ipAddress = '';
+        if (ipMatch && ipMatch[1]) {
+          ipAddress = ipMatch[1];
+          console.log("ipcheck: ", response.data);
+        } else {
+          toast.error("cannot get your IP");
+          return;
+        }
+
+        await axios
+          .post(`${import.meta.env.VITE_BACKEND_URL}/api/joinRoom`, {
+            roomId: roomId,
+            ipAddress: ipAddress,
+          })
+          .then((res) => {
+            if (res.data === "error") {
+              toast.error("Invalid room ID");
+            } else {
+              toast.success("joined Room");
               navigate(`/poll/${roomId}`);
             }
-          })
+          });
       } catch (error) {
         console.log(error);
       }
     }
-  }
+  };
 
   return (
     <>
@@ -74,7 +84,8 @@ export default function JoinRoom() {
           </button>
         </div>
         <p className="mt-2 text-center">
-          If you don't have an invite then create <a href="/createPoll">new poll</a>
+          If you don't have an invite then create{" "}
+          <a href="/createPoll">new poll</a>
         </p>
       </div>
     </>

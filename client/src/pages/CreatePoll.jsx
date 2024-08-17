@@ -25,7 +25,7 @@ export default function CreatePoll() {
     // Add a new PollOption when the button is clicked
     setOptions((prevOptions) => [
       ...prevOptions,
-      { id: prevOptions.length + 1, value: "" ,vote:0},
+      { id: prevOptions.length + 1, value: "", vote: 0 },
     ]);
   };
 
@@ -62,32 +62,47 @@ export default function CreatePoll() {
     const pollData = {
       username,
       question: pollQuestion,
-      options: options.map((option) => ({ option: option.value, vote: option.vote })),
+      options: options.map((option) => ({
+        option: option.value,
+        vote: option.vote,
+      })),
     };
 
     try {
+      // Fetch the public IP address using Cloudflare's IP detection service
+      const response = await axios.get(
+        "https://www.cloudflare.com/cdn-cgi/trace"
+      );
 
-     // Fetch the public IP address using Cloudflare's IP detection service
-     const response = await axios.get("https://www.cloudflare.com/cdn-cgi/trace");
-        
-     // Extract the IP address from the response data
-     const ipAddress = response.data.match(/ip=(.*)/)[1];
+      const ipMatch = response.data.match(/ip=(.*)/);
+      let ipAddress = "";
+      if (ipMatch && ipMatch[1]) {
+        ipAddress = ipMatch[1];
+        console.log("ipcheck: ", response.data);
+      } else {
+        toast.error("cannot get your IP");
+        return;
+      }
 
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/createpoll`, {ipAddress:ipAddress}).then((res) => {
-        if (res.data.message === "success") {
-          const roomId = res.data.roomId;
-          const socket = io(`${import.meta.env.VITE_BACKEND_URL}`);
-          // Connect to the Socket.IO server
-          socket.on("connect", () => {
-            // Emit 'joinRoom' event with roomId and pollData
-            socket.emit("joinRoom", { roomId, pollData });
-            
-            socket.disconnect();
+      await axios
+        .post(`${import.meta.env.VITE_BACKEND_URL}/api/createpoll`, {
+          ipAddress: ipAddress,
+        })
+        .then((res) => {
+          if (res.data.message === "success") {
+            const roomId = res.data.roomId;
+            const socket = io(`${import.meta.env.VITE_BACKEND_URL}`);
+            // Connect to the Socket.IO server
+            socket.on("connect", () => {
+              // Emit 'joinRoom' event with roomId and pollData
+              socket.emit("joinRoom", { roomId, pollData });
 
-            navigate(`/poll/${roomId}`);
-          });
-        }
-      });
+              socket.disconnect();
+
+              navigate(`/poll/${roomId}`);
+            });
+          }
+        });
     } catch (error) {
       console.log(error);
     }
@@ -110,6 +125,7 @@ export default function CreatePoll() {
             </label>
             <input
               type="text"
+              id="username"
               name="username"
               placeholder="Username"
               className="form-control fs-5"
@@ -127,6 +143,7 @@ export default function CreatePoll() {
             </label>
             <input
               type="text"
+              id="pollQuestion"
               name="pollQuestion"
               placeholder="Eg. What is your favorite color?"
               className="form-control fs-5"

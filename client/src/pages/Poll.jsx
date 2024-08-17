@@ -27,8 +27,8 @@ export default function Poll() {
     });
     // logic for handling multiple votes as figured by the server
     socketRef.current.on("multipleVotes", () => {
-      toast.error('You have already voted');
-    })
+      toast.error("You have already voted");
+    });
   }, [roomId]);
 
   // logic for select vote
@@ -42,11 +42,19 @@ export default function Poll() {
     }
     try {
       // Fetch the public IP address using Cloudflare's IP detection service
-      const response = await axios.get("https://www.cloudflare.com/cdn-cgi/trace");
-        
-      // Extract the IP address from the response data
-      const ipAddress = response.data.match(/ip=(.*)/)[1];
-      console.log('ipcheck: ',response.data);
+      const response = await axios.get(
+        "https://www.cloudflare.com/cdn-cgi/trace"
+      );
+
+      const ipMatch = response.data.match(/ip=(.*)/);
+      let ipAddress = '';
+      if (ipMatch && ipMatch[1]) {
+        ipAddress = ipMatch[1];
+        console.log("ipcheck: ", response.data);
+      }else{
+        toast.error('cannot get your IP');
+        return ;
+      }
 
       // Emit vote with public IP address
       socketRef.current.emit("sendVote", { isSelected, roomId, ipAddress });
