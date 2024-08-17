@@ -4,7 +4,7 @@ const ipAddress_inserter = async (roomId, ipAddress) => {
   try {
     const pollData = await Poll.findOne({roomId,ipAddress});
     if(!pollData){
-        const poll = new Poll({ roomId, ipAddress });
+        const poll = new Poll({ roomId, ipAddress , vote:false});
         await poll.save();
     }
   } catch (error) {
