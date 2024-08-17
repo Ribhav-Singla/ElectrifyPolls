@@ -84,6 +84,8 @@ io.on("connection", (socket) => {
   socket.on("sendVote", async({ isSelected, roomId, ipAddress }) => {   
     // check if the ipAddress has already not voted or not
     const result = await ipAddress_checker(roomId,ipAddress)
+    console.log('ipaddress: ',ipAddress);
+    
     if(!result){
       socket.emit('multipleVotes');
       return ;

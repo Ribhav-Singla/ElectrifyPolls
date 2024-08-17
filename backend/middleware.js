@@ -5,9 +5,7 @@ const ipAddress_inserter = async (roomId, ipAddress) => {
     const pollData = await Poll.findOne({roomId,ipAddress});
     if(!pollData){
         const poll = new Poll({ roomId, ipAddress , vote:false});
-        await poll.save();
-        console.log('poll: ',poll);
-        
+        await poll.save();        
     }
   } catch (error) {
     console.log("error occured while inserting the ipAddress: ", error);
@@ -15,11 +13,8 @@ const ipAddress_inserter = async (roomId, ipAddress) => {
 };
 
 const ipAddress_checker = async (roomId, ipAddress) => {
-  console.log('roomId: ',roomId," - ipaddress : ",ipAddress);
   try {
-    const vote_details = await Poll.findOne({ roomId, ipAddress });
-    console.log('vote_details: ',vote_details);
-    
+    const vote_details = await Poll.findOne({ roomId, ipAddress });    
     if (!vote_details.vote) {
       return true;
     } else {
@@ -44,7 +39,6 @@ const ipAddress_updater = async (roomId, ipAddress) => {
         },
       }
     );
-    console.log('vote_details updated: ',vote_details);
     await vote_details.save();
   } catch (error) {
     console.log("error occured while ipAddress_updater: ", error);
