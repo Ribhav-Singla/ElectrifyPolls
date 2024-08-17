@@ -58,9 +58,9 @@ io.on("connection", (socket) => {
 
   socket.on("joinRoom", async({ roomId, pollData }) => {    
     // Initialize roomState if it doesn't exist or if it's undefined
-    if (roomState[roomId] === undefined) {
+    if (!roomState[roomId]) {
       roomState[roomId] = pollData; // Initialize with pollData
-      roomState[roomId].totalVotes = totalVotes;
+      roomState[roomId].totalVotes = 0; // Initialize totalVotes
     }
     // Join the room
     socket.join(roomId);
