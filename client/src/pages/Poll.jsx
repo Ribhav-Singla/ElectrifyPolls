@@ -41,10 +41,12 @@ export default function Poll() {
       return;
     }
     try {
-      // Fetch the public IP address
-      const response = await axios.get("https://api.ipify.org?format=json");
+      // Fetch the public IP address using Cloudflare's IP detection service
+      const response = await axios.get("https://www.cloudflare.com/cdn-cgi/trace");
+        
+      // Extract the IP address from the response data
+      const ipAddress = response.data.match(/ip=(.*)/)[1];
       console.log('ipcheck: ',response.data);
-      const ipAddress = response.data.ip;
 
       // Emit vote with public IP address
       socketRef.current.emit("sendVote", { isSelected, roomId, ipAddress });

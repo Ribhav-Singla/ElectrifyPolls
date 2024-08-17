@@ -67,9 +67,11 @@ export default function CreatePoll() {
 
     try {
 
-      // Fetch the public IP address
-      const response = await axios.get("https://api.ipify.org?format=json");
-      const ipAddress = response.data.ip;
+     // Fetch the public IP address using Cloudflare's IP detection service
+     const response = await axios.get("https://www.cloudflare.com/cdn-cgi/trace");
+        
+     // Extract the IP address from the response data
+     const ipAddress = response.data.match(/ip=(.*)/)[1];
 
       await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/createpoll`, {ipAddress:ipAddress}).then((res) => {
         if (res.data.message === "success") {
