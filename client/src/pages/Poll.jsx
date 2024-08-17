@@ -8,6 +8,7 @@ import axios from "axios";
 export default function Poll() {
   const { roomId } = useParams();
   const bgcolor = ["#3bbd6c", "blue", "red", "orange"];
+  const [loading,setLoading] = useState(true);
 
   // using socketio logic here
   const [roomState, setRoomState] = useState(undefined);
@@ -22,8 +23,13 @@ export default function Poll() {
     // Listen for updates to the room state
     socketRef.current.emit("getState", roomId);
     // logic for updating the state as and when received from the server
+    const flag = true;
     socketRef.current.on("updateState", (state) => {
       setRoomState(state);
+      if(flag){
+        setLoading(false);
+        flag = false;
+      }
     });
     // logic for handling multiple votes as figured by the server
     socketRef.current.on("multipleVotes", () => {
@@ -64,6 +70,10 @@ export default function Poll() {
       toast.error("Something went wrong!");
     }
   };
+
+  if(loading){
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
