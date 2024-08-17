@@ -15,6 +15,7 @@ const ipAddress_inserter = async (roomId, ipAddress) => {
 };
 
 const ipAddress_checker = async (roomId, ipAddress) => {
+  console.log('roomId: ',roomId," - ipaddress : ",ipAddress);
   try {
     const vote_details = await Poll.findOne({ roomId, ipAddress });
     console.log('vote_details: ',vote_details);
