@@ -43,6 +43,7 @@ export default function Poll() {
     try {
       // Fetch the public IP address
       const response = await axios.get("https://api.ipify.org?format=json");
+      console.log('ipcheck: ',response.data);
       const ipAddress = response.data.ip;
 
       // Emit vote with public IP address
