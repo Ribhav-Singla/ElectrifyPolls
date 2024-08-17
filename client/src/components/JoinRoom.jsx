@@ -14,7 +14,12 @@ export default function JoinRoom() {
     }
     else{
       try {
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/joinRoom`,{roomId})
+
+        // Fetch the public IP address
+        const response = await axios.get("https://api.ipify.org?format=json");
+        const ipAddress = response.data.ip;
+
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/joinRoom`,{roomId:roomId,ipAddress:ipAddress})
           .then((res)=>{
             if(res.data === 'error'){
               toast.error('Invalid room ID')

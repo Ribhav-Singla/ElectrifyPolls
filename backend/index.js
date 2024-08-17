@@ -106,8 +106,8 @@ io.on("connection", (socket) => {
 });
 
 app.post("/api/createpoll", async(req, res) => {
-  const { publicIpv4 } = await import("public-ip");
-  const ipAddress = await publicIpv4()
+  // const { publicIpv4 } = await import("public-ip");
+  const ipAddress = req.body.ipAddress
   console.log('/api/cretaepoll ip: ',ipAddress);
   
   const roomId = uuidv4();
@@ -125,8 +125,8 @@ app.post("/api/createpoll", async(req, res) => {
 });
 
 app.post("/api/joinRoom", async(req, res) => {
-  const { publicIpv4 } = await import("public-ip");
-  const ipAddress = await publicIpv4()
+  // const { publicIpv4 } = await import("public-ip");
+  const ipAddress = req.body.ipAddress
   try {
     await ipAddress_inserter(req.body.roomId,ipAddress)
     if (roomState[req.body.roomId]) {

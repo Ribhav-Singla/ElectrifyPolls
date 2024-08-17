@@ -66,7 +66,12 @@ export default function CreatePoll() {
     };
 
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/createpoll`, pollData).then((res) => {
+
+      // Fetch the public IP address
+      const response = await axios.get("https://api.ipify.org?format=json");
+      const ipAddress = response.data.ip;
+
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/createpoll`, {ipAddress:ipAddress}).then((res) => {
         if (res.data.message === "success") {
           const roomId = res.data.roomId;
           const socket = io(`${import.meta.env.VITE_BACKEND_URL}`);
