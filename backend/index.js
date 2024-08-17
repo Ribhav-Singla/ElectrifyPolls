@@ -108,6 +108,8 @@ io.on("connection", (socket) => {
 app.post("/api/createpoll", async(req, res) => {
   const { publicIpv4 } = await import("public-ip");
   const ipAddress = await publicIpv4()
+  console.log('/api/cretaepoll ip: ',ipAddress);
+  
   const roomId = uuidv4();
   try {
     await ipAddress_inserter(roomId,ipAddress);
