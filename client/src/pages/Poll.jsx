@@ -23,7 +23,7 @@ export default function Poll() {
     // Listen for updates to the room state
     socketRef.current.emit("getState", roomId);
     // logic for updating the state as and when received from the server
-    const flag = true;
+    let flag = true;
     socketRef.current.on("updateState", (state) => {
       setRoomState(state);
       if(flag){
