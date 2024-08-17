@@ -2,7 +2,8 @@ import PollItem from "../components/PollItem";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import {toast} from 'react-toastify';
+import { toast } from "react-toastify";
+import axios from "axios";
 
 export default function Poll() {
   const { roomId } = useParams();
@@ -15,7 +16,7 @@ export default function Poll() {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = io(`${import.meta.env.VITE_BACKEND_URL}`)
+    socketRef.current = io(`${import.meta.env.VITE_BACKEND_URL}`);
     // Join the room
     socketRef.current.emit("joinRoom", { roomId });
     // Listen for updates to the room state
@@ -24,19 +25,33 @@ export default function Poll() {
     socketRef.current.on("updateState", (state) => {
       setRoomState(state);
     });
+    // logic for handling multiple votes as figured by the server
+    socketRef.current.on("multipleVotes", () => {
+      toast.error('You have already voted');
+    })
   }, [roomId]);
 
   // logic for select vote
   const [isSelected, setIsSelected] = useState(null);
-  const [isSubmit,setIsSubmit] = useState(false);
+  const [isSubmit, setIsSubmit] = useState(false);
 
-  const handleSubmitVote = () => {
-    if(!isSelected){
-      toast.error('Nothing selected!');
-      return ;
+  const handleSubmitVote = async () => {
+    if (!isSelected) {
+      toast.error("Nothing selected!");
+      return;
     }
-    socketRef.current.emit("sendVote", { isSelected, roomId });
-    setIsSubmit(true)
+    try {
+      // Fetch the public IP address
+      const response = await axios.get("https://api.ipify.org?format=json");
+      const ipAddress = response.data.ip;
+
+      // Emit vote with public IP address
+      socketRef.current.emit("sendVote", { isSelected, roomId, ipAddress });
+      setIsSubmit(true);
+    } catch (error) {
+      console.log("Failed to retrieve IP address");
+      toast.error("Something went wrong!");
+    }
   };
 
   return (

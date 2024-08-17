@@ -3,11 +3,18 @@ const { createServer } = require("http");
 const { v4: uuidv4 } = require("uuid");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const mongoose = require('mongoose');
 require('dotenv').config()
+const {ipAddress_checker,ipAddress_inserter,ipAddress_updater} = require('./middleware')
 
 const app = express();
 const server = createServer(app);
 const PORT = process.env.PORT
+
+// mongodb connection
+mongoose.connect(process.env.MONGO_URL)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Error connecting to MongoDB:', err));
 
 // Use cors middleware
 // Add headers before the routes are defined
@@ -49,7 +56,7 @@ let totalVotes = 0;
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-  socket.on("joinRoom", ({ roomId, pollData }) => {
+  socket.on("joinRoom", async({ roomId, pollData }) => {    
     // Initialize roomState if it doesn't exist or if it's undefined
     if (roomState[roomId] === undefined) {
       roomState[roomId] = pollData; // Initialize with pollData
@@ -57,6 +64,8 @@ io.on("connection", (socket) => {
     }
     // Join the room
     socket.join(roomId);
+    // make an insertion into database
+    // await ipAddress_inserter(roomId,ipAddress)
 
     // print the list of all the users in the room
     const clientsInRoom = io.sockets.adapter.rooms.get(roomId);
@@ -72,7 +81,13 @@ io.on("connection", (socket) => {
     socket.emit("updateState", roomState[roomId]);
   });
 
-  socket.on("sendVote", ({ isSelected, roomId }) => {
+  socket.on("sendVote", async({ isSelected, roomId, ipAddress }) => {   
+    // check if the ipAddress has already not voted or not
+    const result = await ipAddress_checker(roomId,ipAddress)
+    if(!result){
+      socket.emit('multipleVotes');
+      return ;
+    }
     roomState[roomId].options.forEach((option) => {
       if (option.option === isSelected) {
         option.vote++;
@@ -82,22 +97,43 @@ io.on("connection", (socket) => {
 
     // Emit the updated state to all clients in the room
     io.to(roomId).emit("updateState", roomState[roomId]);
+
+    // update the ipAddress in the database
+    await ipAddress_updater(roomId,ipAddress)
   });
 });
 
-app.post("/api/createpoll", (req, res) => {
+app.post("/api/createpoll", async(req, res) => {
+  const { publicIpv4 } = await import("public-ip");
+  const ipAddress = await publicIpv4()
   const roomId = uuidv4();
-  res.send({
-    message: "success",
-    roomId,
-  });
+  try {
+    await ipAddress_inserter(roomId,ipAddress);
+    res.send({
+      message: "success",
+      roomId,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error creating poll",
+    })
+  }
 });
 
-app.post("/api/joinRoom", (req, res) => {
-  if (roomState[req.body.roomId]) {
-    res.send("success");
-  } else {
-    res.send("error");
+app.post("/api/joinRoom", async(req, res) => {
+  const { publicIpv4 } = await import("public-ip");
+  const ipAddress = await publicIpv4()
+  try {
+    await ipAddress_inserter(req.body.roomId,ipAddress)
+    if (roomState[req.body.roomId]) {
+      res.send("success");
+    } else {
+      res.send("error");
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Error joining room",
+      })
   }
 });
 
